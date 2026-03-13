@@ -1,5 +1,6 @@
 import fastf1
 import pandas as pd
+import requests
 import os
 from supabase import create_client
 from dotenv import load_dotenv
@@ -91,6 +92,36 @@ def insert_laps(session, race_name):
     print(f"Vueltas de {race_name} insertadas")
 
 
+def fetch_and_insert_pit_stops(race_name, openf1_session_key):
+    url = f"https://api.openf1.org/v1/pit?session_key={openf1_session_key}"
+    response = requests.get(url)
+    pits = [p for p in response.json() if p["pit_duration"]]
+    
+    session_id = get_or_create_session(race_name, 'Race')
+    if not session_id:
+        return
+
+    stop_counts = {}
+    for p in pits:
+        driver_number = str(p["driver_number"])
+        result = supabase.table("drivers").select("driver_id").eq("code", driver_number).execute()
+        if not result.data:
+            continue
+        driver_id = result.data[0]["driver_id"]
+        
+        stop_counts[driver_id] = stop_counts.get(driver_id, 0) + 1
+        
+        supabase.table("pit_stops").insert({
+            "session_id": session_id,
+            "driver_id": driver_id,
+            "lap_number": p["lap_number"],
+            "stop_number": stop_counts[driver_id],
+            "duration": p["pit_duration"]
+        }).execute()
+    
+    print(f"Pit stops de {race_name} insertados")
+
+
 def main():
     print("Cargando Australia 2026")
     session = get_session(2026, 'Australia', 'R')
@@ -100,7 +131,10 @@ def main():
 
     print("Insertando vueltas")
     insert_laps(session, 'Australian Grand Prix')
-    
+
+    print("Insertando pit stops")
+    fetch_and_insert_pit_stops('Australian Grand Prix', 11234)
+
     print("Listo")
 
 main()

@@ -26,6 +26,7 @@ CREATE TABLE drivers (
     driver_id        SERIAL PRIMARY KEY,
     driver_ref       VARCHAR(50) UNIQUE NOT NULL,
     code             CHAR(3),
+    driver_number    SMALLINT UNIQUE,
     forename         VARCHAR(50) NOT NULL,
     surname          VARCHAR(50) NOT NULL,
     nationality      VARCHAR(50),
@@ -126,3 +127,9 @@ CREATE TABLE constructor_standings (
     points          NUMERIC(5,1),
     wins            SMALLINT
 );
+
+
+-- Constraints adicionales
+ALTER TABLE races ADD CONSTRAINT races_round_key UNIQUE (round);
+ALTER TABLE race_results ADD CONSTRAINT race_results_session_driver_key UNIQUE (session_id, driver_id);
+ALTER TABLE laps ADD CONSTRAINT laps_session_driver_lap_key UNIQUE (session_id, driver_id, lap_number);
