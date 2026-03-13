@@ -1,0 +1,9 @@
+fastf1
+requests
+pandas
+psycopg2-binary
+supabase
+python-dotenv
+jupyter
+matplotlib
+seaborn

@@ -1,0 +1,18 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+.env
+
+# FastF1 cache
+cache/
+
+# Data cruda (no va al repo)
+data/raw/
+
+# Archivos locales de Tableau
+tableau/*.twb
+tableau/*.twbx
+
+# VSCode
+.vscode/
