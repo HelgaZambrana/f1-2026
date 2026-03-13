@@ -110,14 +110,14 @@ def fetch_and_insert_pit_stops(race_name, openf1_session_key):
         driver_id = result.data[0]["driver_id"]
         
         stop_counts[driver_id] = stop_counts.get(driver_id, 0) + 1
-        
-        supabase.table("pit_stops").insert({
+
+        supabase.table("pit_stops").upsert({
             "session_id": session_id,
             "driver_id": driver_id,
             "lap_number": p["lap_number"],
             "stop_number": stop_counts[driver_id],
             "duration": p["pit_duration"]
-        }).execute()
+        }, on_conflict="session_id,driver_id,lap_number").execute()
     
     print(f"Pit stops de {race_name} insertados")
 
