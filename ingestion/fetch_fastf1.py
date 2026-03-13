@@ -104,7 +104,7 @@ def fetch_and_insert_pit_stops(race_name, openf1_session_key):
     stop_counts = {}
     for p in pits:
         driver_number = str(p["driver_number"])
-        result = supabase.table("drivers").select("driver_id").eq("code", driver_number).execute()
+        result = supabase.table("drivers").select("driver_id").eq("driver_number", int(p["driver_number"])).execute()
         if not result.data:
             continue
         driver_id = result.data[0]["driver_id"]
@@ -121,6 +121,27 @@ def fetch_and_insert_pit_stops(race_name, openf1_session_key):
     
     print(f"Pit stops de {race_name} insertados")
 
+def insert_qualifying_results(session, race_name):
+    session_id = get_or_create_session(race_name, 'Q')
+    if not session_id:
+        return
+
+    for _, row in session.results.iterrows():
+        driver_id = get_driver_id(row['Abbreviation'])
+        if not driver_id:
+            continue
+
+        supabase.table("qualifying_results").upsert({
+            "session_id": session_id,
+            "driver_id": driver_id,
+            "position": int(row['Position']) if pd.notna(row['Position']) else None,
+            "q1_time": str(row['Q1']) if pd.notna(row['Q1']) else None,
+            "q2_time": str(row['Q2']) if pd.notna(row['Q2']) else None,
+            "q3_time": str(row['Q3']) if pd.notna(row['Q3']) else None,
+        }, on_conflict="session_id,driver_id").execute()
+
+    print(f"Qualifying de {race_name} insertado")
+
 
 def main():
     print("Cargando Australia 2026")
@@ -134,6 +155,10 @@ def main():
 
     print("Insertando pit stops")
     fetch_and_insert_pit_stops('Australian Grand Prix', 11234)
+
+    print("Insertando qualifying")
+    session_q = get_session(2026, 'Australia', 'Q')
+    insert_qualifying_results(session_q, 'Australian Grand Prix')
 
     print("Listo")
 
