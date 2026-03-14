@@ -43,7 +43,8 @@ CREATE TABLE races (
     circuit_id         INT REFERENCES circuits(circuit_id),
     name               VARCHAR(100) NOT NULL,
     race_date          DATE NOT NULL,
-    is_sprint_weekend  BOOLEAN DEFAULT FALSE
+    is_sprint_weekend  BOOLEAN DEFAULT FALSE,
+    season  SMALLINT
 );
 
 CREATE TABLE sessions (
@@ -130,7 +131,8 @@ CREATE TABLE constructor_standings (
 
 
 -- Constraints adicionales
-ALTER TABLE races ADD CONSTRAINT races_round_key UNIQUE (round);
+
+ALTER TABLE races ADD CONSTRAINT races_season_round_key UNIQUE (season, round);
 ALTER TABLE race_results ADD CONSTRAINT race_results_session_driver_key UNIQUE (session_id, driver_id);
 ALTER TABLE laps ADD CONSTRAINT laps_session_driver_lap_key UNIQUE (session_id, driver_id, lap_number);
 ALTER TABLE qualifying_results ADD CONSTRAINT qualifying_results_session_driver_key UNIQUE (session_id, driver_id);

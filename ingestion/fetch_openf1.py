@@ -52,13 +52,12 @@ def insert_drivers(drivers):
     print(f"{len(drivers)} pilotos procesados")
 
 
-def fetch_races():
-    url = "https://api.openf1.org/v1/meetings?year=2026"
+def fetch_races(year):
+    url = f"https://api.openf1.org/v1/meetings?year={year}"
     response = requests.get(url)
     meetings = response.json()
-    
     gps = [m for m in meetings if "Grand Prix" in m["meeting_name"]]
-    print(f"{len(gps)} GPs encontrados")
+    print(f"{len(gps)} GPs encontrados para {year}")
     return gps
 
 
@@ -74,7 +73,8 @@ def insert_circuits(races):
     
     print(f"{len(races)} circuitos insertados")
 
-def insert_races(races):
+
+def insert_races(races, season):
     for r in races:
         circuit_ref = r["circuit_short_name"].lower().replace(" ", "_")
         circuit = supabase.table("circuits").select("circuit_id").eq("circuit_ref", circuit_ref).execute()
@@ -82,33 +82,26 @@ def insert_races(races):
         
         supabase.table("races").upsert({
             "round": races.index(r) + 1,
+            "season": season,
             "circuit_id": circuit_id,
             "name": r["meeting_name"],
             "race_date": r["date_start"][:10],
             "is_sprint_weekend": False
-        }, on_conflict="round").execute()
+        }, on_conflict="season,round").execute()
     
-    print(f"{len(races)} carreras insertadas")
-
+    print(f"{len(races)} carreras insertadas para {season}")
 
 def main():
-    print("Procesando datos de drivers de OpenF1")
+    print("Procesando drivers")
     drivers = fetch_drivers()
-    
-    print("Insertando constructores")
     insert_constructors(drivers)
-    
-    print("Insertando pilotos")
     insert_drivers(drivers)
 
-    print("Procesando datos de GPs de OpenF1")
-    races = fetch_races()
-
-    print("Insertando circuitos")
-    insert_circuits(races)
-
-    print("Insertando carreras")
-    insert_races(races)
+    for year in [2025, 2026]:
+        print(f"Procesando GPs {year}")
+        races = fetch_races(year)
+        insert_circuits(races)
+        insert_races(races, year)
 
     print("Listo")
 
