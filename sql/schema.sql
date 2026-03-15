@@ -29,8 +29,17 @@ CREATE TABLE drivers (
     driver_number    SMALLINT UNIQUE,
     forename         VARCHAR(50) NOT NULL,
     surname          VARCHAR(50) NOT NULL,
-    nationality      VARCHAR(50),
-    constructor_id   INT REFERENCES constructors(constructor_id)
+    nationality      VARCHAR(50)
+);
+
+CREATE TABLE driver_seasons (
+    stint_id       SERIAL PRIMARY KEY,
+    driver_id      INT REFERENCES drivers(driver_id),
+    constructor_id INT REFERENCES constructors(constructor_id),
+    season         SMALLINT NOT NULL,
+    round_start    SMALLINT,
+    round_end      SMALLINT,
+    UNIQUE (driver_id, season, round_start)
 );
 
 -- ============================================================
