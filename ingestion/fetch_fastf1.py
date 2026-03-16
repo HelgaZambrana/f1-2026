@@ -2,17 +2,17 @@ import fastf1
 import pandas as pd
 import requests
 import os
+import time
 from supabase import create_client
 from dotenv import load_dotenv
 
 load_dotenv()
 
-supabase = create_client(
-    os.getenv("SUPABASE_URL"),
-    os.getenv("SUPABASE_KEY")
-)
-
 fastf1.Cache.enable_cache('cache/')
+
+DRIVER_NUMBER_MAP = {
+    4: "NOR",   # Norris usaba 4 en 2025, en 2026 usa 1
+}
 
 CARRERAS_2025 = [
     {"year": 2025, "gp": "Australian Grand Prix", "session_key": 9693},
@@ -56,34 +56,44 @@ def get_driver_id(abbreviation):
         return result.data[0]["driver_id"]
     return None
 
-def get_or_create_session(race_name, session_type, year):
-    race = supabase.table("races").select("race_id").eq("name", race_name).eq("season", year).execute()
-    if not race.data:
-        print(f"Carrera no encontrada: {race_name} {year}")
-        return None
-    race_id = race.data[0]["race_id"]
+def get_or_create_session(race_name, session_type, year, retries=3):
+    for attempt in range(retries):
+        try:
+            race = supabase.table("races").select("race_id").eq("name", race_name).eq("season", year).execute()
+            if not race.data:
+                print(f"Carrera no encontrada: {race_name} {year}")
+                return None
+            race_id = race.data[0]["race_id"]
 
-    session = supabase.table("sessions").select("session_id").eq("race_id", race_id).eq("type", session_type).execute()
-    if session.data:
-        return session.data[0]["session_id"]
+            session = supabase.table("sessions").select("session_id").eq("race_id", race_id).eq("type", session_type).execute()
+            if session.data:
+                return session.data[0]["session_id"]
 
-    new_session = supabase.table("sessions").insert({
-        "race_id": race_id,
-        "type": session_type
-    }).execute()
-    return new_session.data[0]["session_id"]
+            new_session = supabase.table("sessions").insert({
+                "race_id": race_id,
+                "type": session_type
+            }).execute()
+            return new_session.data[0]["session_id"]
+
+        except Exception as e:
+            print(f"Error de conexión, reintentando ({attempt + 1}/{retries})...")
+            time.sleep(10)
+
+    print(f"Fallo después de {retries} intentos: {race_name}")
+    return None
 
 def insert_race_results(session, race_name, year):
     session_id = get_or_create_session(race_name, 'Race', year)
     if not session_id:
         return
 
+    batch = []
     for _, row in session.results.iterrows():
         driver_id = get_driver_id(row['Abbreviation'])
         if not driver_id:
             continue
 
-        supabase.table("race_results").upsert({
+        batch.append({
             "session_id": session_id,
             "driver_id": driver_id,
             "grid_position": int(row['GridPosition']) if pd.notna(row['GridPosition']) else None,
@@ -91,8 +101,9 @@ def insert_race_results(session, race_name, year):
             "points": float(row['Points']) if pd.notna(row['Points']) else None,
             "laps_completed": int(row['Laps']) if pd.notna(row['Laps']) else None,
             "status": row['Status']
-        }, on_conflict="session_id,driver_id").execute()
+        })
 
+    supabase.table("race_results").upsert(batch, on_conflict="session_id,driver_id").execute()
     print(f"Resultados de {race_name} {year} insertados")
 
 def insert_laps(session, race_name, year):
@@ -100,12 +111,13 @@ def insert_laps(session, race_name, year):
     if not session_id:
         return
 
+    batch = []
     for _, lap in session.laps.iterrows():
         driver_id = get_driver_id(lap['Driver'])
         if not driver_id:
             continue
 
-        supabase.table("laps").upsert({
+        batch.append({
             "session_id": session_id,
             "driver_id": driver_id,
             "lap_number": int(lap['LapNumber']) if pd.notna(lap['LapNumber']) else None,
@@ -117,7 +129,10 @@ def insert_laps(session, race_name, year):
             "tyre_life": int(lap['TyreLife']) if pd.notna(lap['TyreLife']) else None,
             "position": int(lap['Position']) if pd.notna(lap['Position']) else None,
             "is_personal_best": bool(lap['IsPersonalBest'])
-        }, on_conflict="session_id,driver_id,lap_number").execute()
+        })
+
+    for i in range(0, len(batch), 100):
+        supabase.table("laps").upsert(batch[i:i+100], on_conflict="session_id,driver_id,lap_number").execute()
 
     print(f"Vueltas de {race_name} {year} insertadas")
 
@@ -130,23 +145,29 @@ def fetch_and_insert_pit_stops(race_name, openf1_session_key, year):
     if not session_id:
         return
 
+    batch = []
     stop_counts = {}
     for p in pits:
-        result = supabase.table("drivers").select("driver_id").eq("driver_number", int(p["driver_number"])).execute()
+        driver_num = int(p["driver_number"])
+        if driver_num in DRIVER_NUMBER_MAP:
+            result = supabase.table("drivers").select("driver_id").eq("code", DRIVER_NUMBER_MAP[driver_num]).execute()
+        else:
+            result = supabase.table("drivers").select("driver_id").eq("driver_number", driver_num).execute()
         if not result.data:
             continue
-        driver_id = result.data[0]["driver_id"]
 
+        driver_id = result.data[0]["driver_id"]
         stop_counts[driver_id] = stop_counts.get(driver_id, 0) + 1
 
-        supabase.table("pit_stops").upsert({
+        batch.append({
             "session_id": session_id,
             "driver_id": driver_id,
             "lap_number": p["lap_number"],
             "stop_number": stop_counts[driver_id],
             "duration": p["pit_duration"]
-        }, on_conflict="session_id,driver_id,lap_number").execute()
+        })
 
+    supabase.table("pit_stops").upsert(batch, on_conflict="session_id,driver_id,lap_number").execute()
     print(f"Pit stops de {race_name} {year} insertados")
 
 def insert_qualifying_results(session, race_name, year):
@@ -154,25 +175,37 @@ def insert_qualifying_results(session, race_name, year):
     if not session_id:
         return
 
+    batch = []
     for _, row in session.results.iterrows():
         driver_id = get_driver_id(row['Abbreviation'])
         if not driver_id:
             continue
 
-        supabase.table("qualifying_results").upsert({
+        batch.append({
             "session_id": session_id,
             "driver_id": driver_id,
             "position": int(row['Position']) if pd.notna(row['Position']) else None,
             "q1_time": str(row['Q1']) if pd.notna(row['Q1']) else None,
             "q2_time": str(row['Q2']) if pd.notna(row['Q2']) else None,
             "q3_time": str(row['Q3']) if pd.notna(row['Q3']) else None,
-        }, on_conflict="session_id,driver_id").execute()
+        })
 
+    supabase.table("qualifying_results").upsert(batch, on_conflict="session_id,driver_id").execute()
     print(f"Qualifying de {race_name} {year} insertado")
 
-def main():
-    for carrera in CARRERAS_2025 + CARRERAS_2026:
+def main(desde=0, hasta=None):
+    global supabase
+    carreras = CARRERAS_2025 + CARRERAS_2026
+    bloque = carreras[desde:hasta]
+    
+    for carrera in bloque:
         print(f"\nProcesando {carrera['gp']} {carrera['year']}")
+        
+        # Reconectar Supabase en cada carrera
+        supabase = create_client(
+            os.getenv("SUPABASE_URL"),
+            os.getenv("SUPABASE_KEY")
+        )
 
         session = get_session(carrera['year'], carrera['gp'], 'R')
         insert_race_results(session, carrera['gp'], carrera['year'])
@@ -182,4 +215,7 @@ def main():
         session_q = get_session(carrera['year'], carrera['gp'], 'Q')
         insert_qualifying_results(session_q, carrera['gp'], carrera['year'])
 
-main()
+        print(f"Esperando 15 segundos...")
+        time.sleep(15)
+
+main(desde=0, hasta=4)
