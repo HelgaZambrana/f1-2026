@@ -1,5 +1,5 @@
 -- ============================================================
--- F1 2026 - Schema
+-- F1 2025-2026 - Schema
 -- Base de datos: Supabase (PostgreSQL)
 -- ============================================================
 
@@ -39,7 +39,7 @@ CREATE TABLE driver_seasons (
     season         SMALLINT NOT NULL,
     round_start    SMALLINT,
     round_end      SMALLINT,
-    UNIQUE (driver_id, season, round_start)
+    UNIQUE (driver_id, season, constructor_id, round_start)
 );
 
 -- ============================================================
@@ -49,11 +49,11 @@ CREATE TABLE driver_seasons (
 CREATE TABLE races (
     race_id            SERIAL PRIMARY KEY,
     round              SMALLINT NOT NULL,
+    season             SMALLINT,
     circuit_id         INT REFERENCES circuits(circuit_id),
     name               VARCHAR(100) NOT NULL,
     race_date          DATE NOT NULL,
-    is_sprint_weekend  BOOLEAN DEFAULT FALSE,
-    season  SMALLINT
+    is_sprint_weekend  BOOLEAN DEFAULT FALSE
 );
 
 CREATE TABLE sessions (
@@ -75,7 +75,7 @@ CREATE TABLE race_results (
     final_position    SMALLINT,
     points            NUMERIC(4,1),
     laps_completed    SMALLINT,
-    status            VARCHAR(50), 
+    status            VARCHAR(50),
     fastest_lap       BOOLEAN DEFAULT FALSE,
     fastest_lap_time  INTERVAL
 );
@@ -99,7 +99,7 @@ CREATE TABLE laps (
     sector1_time      INTERVAL,
     sector2_time      INTERVAL,
     sector3_time      INTERVAL,
-    compound          VARCHAR(20), 
+    compound          VARCHAR(20),
     tyre_life         SMALLINT,
     position          SMALLINT,
     is_personal_best  BOOLEAN DEFAULT FALSE
@@ -138,8 +138,9 @@ CREATE TABLE constructor_standings (
     wins            SMALLINT
 );
 
-
--- Constraints adicionales
+-- ============================================================
+-- CONSTRAINTS
+-- ============================================================
 
 ALTER TABLE races ADD CONSTRAINT races_season_round_key UNIQUE (season, round);
 ALTER TABLE race_results ADD CONSTRAINT race_results_session_driver_key UNIQUE (session_id, driver_id);
