@@ -11,38 +11,39 @@ load_dotenv()
 fastf1.Cache.enable_cache('cache/')
 
 DRIVER_NUMBER_MAP = {
-    4: "NOR",   # Norris usaba 4 en 2025, en 2026 usa 1
+    4: "NOR",
 }
 
 CARRERAS_2025 = [
-    {"year": 2025, "gp": "Australian Grand Prix", "session_key": 9693},
-    {"year": 2025, "gp": "Chinese Grand Prix", "session_key": 9998},
-    {"year": 2025, "gp": "Japanese Grand Prix", "session_key": 10006},
-    {"year": 2025, "gp": "Bahrain Grand Prix", "session_key": 10014},
-    {"year": 2025, "gp": "Saudi Arabian Grand Prix", "session_key": 10022},
-    {"year": 2025, "gp": "Miami Grand Prix", "session_key": 10033},
-    {"year": 2025, "gp": "Emilia Romagna Grand Prix", "session_key": 9987},
-    {"year": 2025, "gp": "Monaco Grand Prix", "session_key": 9979},
-    {"year": 2025, "gp": "Spanish Grand Prix", "session_key": 9971},
-    {"year": 2025, "gp": "Canadian Grand Prix", "session_key": 9963},
-    {"year": 2025, "gp": "Austrian Grand Prix", "session_key": 9955},
-    {"year": 2025, "gp": "British Grand Prix", "session_key": 9947},
-    {"year": 2025, "gp": "Belgian Grand Prix", "session_key": 9939},
-    {"year": 2025, "gp": "Hungarian Grand Prix", "session_key": 9928},
-    {"year": 2025, "gp": "Dutch Grand Prix", "session_key": 9920},
-    {"year": 2025, "gp": "Italian Grand Prix", "session_key": 9912},
-    {"year": 2025, "gp": "Azerbaijan Grand Prix", "session_key": 9904},
-    {"year": 2025, "gp": "Singapore Grand Prix", "session_key": 9896},
-    {"year": 2025, "gp": "United States Grand Prix", "session_key": 9888},
-    {"year": 2025, "gp": "Mexico City Grand Prix", "session_key": 9877},
-    {"year": 2025, "gp": "São Paulo Grand Prix", "session_key": 9869},
-    {"year": 2025, "gp": "Las Vegas Grand Prix", "session_key": 9858},
-    {"year": 2025, "gp": "Qatar Grand Prix", "session_key": 9850},
-    {"year": 2025, "gp": "Abu Dhabi Grand Prix", "session_key": 9839},
+    {"year": 2025, "gp": "Australian Grand Prix", "session_key": 9693, "sprint_key": None, "sq_key": None},
+    {"year": 2025, "gp": "Chinese Grand Prix", "session_key": 9998, "sprint_key": 9993, "sq_key": 9989},
+    {"year": 2025, "gp": "Japanese Grand Prix", "session_key": 10006, "sprint_key": None, "sq_key": None},
+    {"year": 2025, "gp": "Bahrain Grand Prix", "session_key": 10014, "sprint_key": None, "sq_key": None},
+    {"year": 2025, "gp": "Saudi Arabian Grand Prix", "session_key": 10022, "sprint_key": None, "sq_key": None},
+    {"year": 2025, "gp": "Miami Grand Prix", "session_key": 10033, "sprint_key": 10028, "sq_key": 10024},
+    {"year": 2025, "gp": "Emilia Romagna Grand Prix", "session_key": 9987, "sprint_key": None, "sq_key": None},
+    {"year": 2025, "gp": "Monaco Grand Prix", "session_key": 9979, "sprint_key": None, "sq_key": None},
+    {"year": 2025, "gp": "Spanish Grand Prix", "session_key": 9971, "sprint_key": None, "sq_key": None},
+    {"year": 2025, "gp": "Canadian Grand Prix", "session_key": 9963, "sprint_key": None, "sq_key": None},
+    {"year": 2025, "gp": "Austrian Grand Prix", "session_key": 9955, "sprint_key": None, "sq_key": None},
+    {"year": 2025, "gp": "British Grand Prix", "session_key": 9947, "sprint_key": None, "sq_key": None},
+    {"year": 2025, "gp": "Belgian Grand Prix", "session_key": 9939, "sprint_key": 9934, "sq_key": 9930},
+    {"year": 2025, "gp": "Hungarian Grand Prix", "session_key": 9928, "sprint_key": None, "sq_key": None},
+    {"year": 2025, "gp": "Dutch Grand Prix", "session_key": 9920, "sprint_key": None, "sq_key": None},
+    {"year": 2025, "gp": "Italian Grand Prix", "session_key": 9912, "sprint_key": None, "sq_key": None},
+    {"year": 2025, "gp": "Azerbaijan Grand Prix", "session_key": 9904, "sprint_key": None, "sq_key": None},
+    {"year": 2025, "gp": "Singapore Grand Prix", "session_key": 9896, "sprint_key": None, "sq_key": None},
+    {"year": 2025, "gp": "United States Grand Prix", "session_key": 9888, "sprint_key": 9883, "sq_key": 9879},
+    {"year": 2025, "gp": "Mexico City Grand Prix", "session_key": 9877, "sprint_key": None, "sq_key": None},
+    {"year": 2025, "gp": "São Paulo Grand Prix", "session_key": 9869, "sprint_key": 9864, "sq_key": 9860},
+    {"year": 2025, "gp": "Las Vegas Grand Prix", "session_key": 9858, "sprint_key": None, "sq_key": None},
+    {"year": 2025, "gp": "Qatar Grand Prix", "session_key": 9850, "sprint_key": 9845, "sq_key": 9841},
+    {"year": 2025, "gp": "Abu Dhabi Grand Prix", "session_key": 9839, "sprint_key": None, "sq_key": None},
 ]
 
 CARRERAS_2026 = [
-    {"year": 2026, "gp": "Australian Grand Prix", "session_key": 11234},
+    {"year": 2026, "gp": "Australian Grand Prix", "session_key": 11234, "sprint_key": None, "sq_key": None},
+    {"year": 2026, "gp": "Chinese Grand Prix", "session_key": 11245, "sprint_key": 11240, "sq_key": 11236},
 ]
 
 def get_session(year, gp, session_type):
@@ -82,8 +83,8 @@ def get_or_create_session(race_name, session_type, year, retries=3):
     print(f"Fallo después de {retries} intentos: {race_name}")
     return None
 
-def insert_race_results(session, race_name, year):
-    session_id = get_or_create_session(race_name, 'Race', year)
+def insert_race_results(session, race_name, year, session_type='Race'):
+    session_id = get_or_create_session(race_name, session_type, year)
     if not session_id:
         return
 
@@ -104,10 +105,10 @@ def insert_race_results(session, race_name, year):
         })
 
     supabase.table("race_results").upsert(batch, on_conflict="session_id,driver_id").execute()
-    print(f"Resultados de {race_name} {year} insertados")
+    print(f"Resultados de {race_name} {year} ({session_type}) insertados")
 
-def insert_laps(session, race_name, year):
-    session_id = get_or_create_session(race_name, 'Race', year)
+def insert_laps(session, race_name, year, session_type='Race'):
+    session_id = get_or_create_session(race_name, session_type, year)
     if not session_id:
         return
 
@@ -134,19 +135,26 @@ def insert_laps(session, race_name, year):
     for i in range(0, len(batch), 100):
         supabase.table("laps").upsert(batch[i:i+100], on_conflict="session_id,driver_id,lap_number").execute()
 
-    print(f"Vueltas de {race_name} {year} insertadas")
+    print(f"Vueltas de {race_name} {year} ({session_type}) insertadas")
 
-def fetch_and_insert_pit_stops(race_name, openf1_session_key, year):
+def fetch_and_insert_pit_stops(race_name, openf1_session_key, year, session_type='Race'):
     url = f"https://api.openf1.org/v1/pit?session_key={openf1_session_key}"
     response = requests.get(url)
+    print(f"Status: {response.status_code}")
+
+    if response.status_code != 200:
+        print(f"Sin pit stops para esta sesión")
+        return
+    
     pits = [p for p in response.json() if p["pit_duration"]]
 
-    session_id = get_or_create_session(race_name, 'Race', year)
+    session_id = get_or_create_session(race_name, session_type, year)
     if not session_id:
         return
 
     batch = []
     stop_counts = {}
+    seen = set()
     for p in pits:
         driver_num = int(p["driver_number"])
         if driver_num in DRIVER_NUMBER_MAP:
@@ -157,8 +165,13 @@ def fetch_and_insert_pit_stops(race_name, openf1_session_key, year):
             continue
 
         driver_id = result.data[0]["driver_id"]
-        stop_counts[driver_id] = stop_counts.get(driver_id, 0) + 1
 
+        key = (session_id, driver_id, p["lap_number"])
+        if key in seen:
+            continue
+        seen.add(key)
+
+        stop_counts[driver_id] = stop_counts.get(driver_id, 0) + 1
         batch.append({
             "session_id": session_id,
             "driver_id": driver_id,
@@ -168,10 +181,10 @@ def fetch_and_insert_pit_stops(race_name, openf1_session_key, year):
         })
 
     supabase.table("pit_stops").upsert(batch, on_conflict="session_id,driver_id,lap_number").execute()
-    print(f"Pit stops de {race_name} {year} insertados")
+    print(f"Pit stops de {race_name} {year} ({session_type}) insertados")
 
-def insert_qualifying_results(session, race_name, year):
-    session_id = get_or_create_session(race_name, 'Q', year)
+def insert_qualifying_results(session, race_name, year, session_type='Q'):
+    session_id = get_or_create_session(race_name, session_type, year)
     if not session_id:
         return
 
@@ -191,22 +204,23 @@ def insert_qualifying_results(session, race_name, year):
         })
 
     supabase.table("qualifying_results").upsert(batch, on_conflict="session_id,driver_id").execute()
-    print(f"Qualifying de {race_name} {year} insertado")
+    print(f"Qualifying de {race_name} {year} ({session_type}) insertado")
+
 
 def main(desde=0, hasta=None):
     global supabase
     carreras = CARRERAS_2025 + CARRERAS_2026
     bloque = carreras[desde:hasta]
-    
+
     for carrera in bloque:
         print(f"\nProcesando {carrera['gp']} {carrera['year']}")
-        
-        # Reconectar Supabase en cada carrera
+
         supabase = create_client(
             os.getenv("SUPABASE_URL"),
             os.getenv("SUPABASE_KEY")
         )
 
+        # Carrera principal
         session = get_session(carrera['year'], carrera['gp'], 'R')
         insert_race_results(session, carrera['gp'], carrera['year'])
         insert_laps(session, carrera['gp'], carrera['year'])
@@ -215,7 +229,19 @@ def main(desde=0, hasta=None):
         session_q = get_session(carrera['year'], carrera['gp'], 'Q')
         insert_qualifying_results(session_q, carrera['gp'], carrera['year'])
 
+        # Sprint weekend
+        if carrera['sprint_key']:
+            print(f"Procesando sprint de {carrera['gp']}")
+
+            session_s = get_session(carrera['year'], carrera['gp'], 'S')
+            insert_race_results(session_s, carrera['gp'], carrera['year'], session_type='Sprint')
+            insert_laps(session_s, carrera['gp'], carrera['year'], session_type='Sprint')
+            fetch_and_insert_pit_stops(carrera['gp'], carrera['sprint_key'], carrera['year'], session_type='Sprint')
+
+            session_sq = get_session(carrera['year'], carrera['gp'], 'SQ')
+            insert_qualifying_results(session_sq, carrera['gp'], carrera['year'], session_type='SQ')
+
         print(f"Esperando 15 segundos...")
         time.sleep(15)
 
-main(desde=0, hasta=4)
+main(desde=22, hasta=23)
