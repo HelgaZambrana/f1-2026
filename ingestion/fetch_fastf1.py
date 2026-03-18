@@ -10,6 +10,8 @@ load_dotenv()
 
 fastf1.Cache.enable_cache('cache/')
 
+driver_cache = {}
+
 DRIVER_NUMBER_MAP = {
     4: "NOR",
 }
@@ -52,10 +54,7 @@ def get_session(year, gp, session_type):
     return session
 
 def get_driver_id(abbreviation):
-    result = supabase.table("drivers").select("driver_id").eq("code", abbreviation).execute()
-    if result.data:
-        return result.data[0]["driver_id"]
-    return None
+    return driver_cache.get(abbreviation)
 
 def get_or_create_session(race_name, session_type, year, retries=3):
     for attempt in range(retries):
@@ -129,7 +128,9 @@ def insert_laps(session, race_name, year, session_type='Race'):
             "compound": lap['Compound'] if pd.notna(lap['Compound']) else None,
             "tyre_life": int(lap['TyreLife']) if pd.notna(lap['TyreLife']) else None,
             "position": int(lap['Position']) if pd.notna(lap['Position']) else None,
-            "is_personal_best": bool(lap['IsPersonalBest'])
+            "is_personal_best": bool(lap['IsPersonalBest']),
+            "track_status": str(lap['TrackStatus']) if pd.notna(lap['TrackStatus']) else None,
+            "is_accurate": bool(lap['IsAccurate'])
         })
 
     for i in range(0, len(batch), 100):
@@ -208,13 +209,26 @@ def insert_qualifying_results(session, race_name, year, session_type='Q'):
 
 
 def main(desde=0, hasta=None):
-    global supabase
+    global supabase, driver_cache
     carreras = CARRERAS_2025 + CARRERAS_2026
     bloque = carreras[desde:hasta]
+
+    supabase = create_client(
+        os.getenv("SUPABASE_URL"),
+        os.getenv("SUPABASE_KEY")
+    )
+
+    # Cache local de driver IDs - una sola query al inicio
+    driver_cache = {}
+    result = supabase.table("drivers").select("driver_id, code").execute()
+    for d in result.data:
+        driver_cache[d["code"]] = d["driver_id"]
+    print(f"Driver cache cargado: {len(driver_cache)} pilotos")
 
     for carrera in bloque:
         print(f"\nProcesando {carrera['gp']} {carrera['year']}")
 
+        # Reconectar Supabase en cada carrera
         supabase = create_client(
             os.getenv("SUPABASE_URL"),
             os.getenv("SUPABASE_KEY")
@@ -244,4 +258,4 @@ def main(desde=0, hasta=None):
         print(f"Esperando 15 segundos...")
         time.sleep(15)
 
-main(desde=22, hasta=23)
+main(desde=25, hasta=26)

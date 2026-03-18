@@ -102,7 +102,9 @@ CREATE TABLE laps (
     compound          VARCHAR(20),
     tyre_life         SMALLINT,
     position          SMALLINT,
-    is_personal_best  BOOLEAN DEFAULT FALSE
+    is_personal_best  BOOLEAN DEFAULT FALSE,
+    track_status      VARCHAR(5),
+    is_accurate       BOOLEAN DEFAULT FALSE
 );
 
 CREATE TABLE pit_stops (
