@@ -10,6 +10,8 @@ cache/
 # Data
 data/processed/
 data/raw/
+.DS_Store
+data/
 
 # Archivos locales de Tableau
 tableau/*.twb
