@@ -24,6 +24,7 @@
 3. Testear con una sola sesión o carrera
 4. Validar el resultado en Supabase antes de escalar
 5. Los errores nunca deben silenciarse, siempre loggear qué falló y por qué
+6. Siempre cachear los driver IDs localmente al inicio del script, nunca consultar Supabase por cada vuelta
 
 ---
 
@@ -41,18 +42,20 @@ https://api.openf1.org/v1/meetings?year=2026
 ```
 
 ### Actualizar `CARRERAS_2026` en `fetch_fastf1.py`
-- [ ] Agregar el GP nuevo con su `session_key`
-- [ ] Si es sprint weekend, agregar también las sesiones Sprint y SQ
+- [ ] Agregar el GP nuevo con su `session_key`, `sprint_key` y `sq_key`
+- [ ] Si no es sprint weekend, poner `None` en `sprint_key` y `sq_key`
 
 ### Correr el script
 ```bash
 python3 ingestion/fetch_fastf1.py
 ```
+- El script reconecta Supabase en cada carrera automáticamente
+- Si el sprint no tiene pit stops OpenF1 devuelve 404, el script lo maneja solo
 
 ### Validar en Supabase
 - [ ] Verificar filas nuevas en `race_results`, `laps`, `pit_stops`, `qualifying_results`
 - [ ] Verificar que los conteos son correctos (no duplicados, no filas faltantes)
-- [ ] Actualizar `compound_in` y `compound_out` en `pit_stops` si es necesario
+- [ ] Actualizar `compound_in` y `compound_out` en `pit_stops`
 
 ### Limpiar y documentar
 - [ ] Limpiar el caché de FastF1: `rm -rf cache/*`
@@ -68,7 +71,7 @@ git push origin main
 ---
 
 ## GPs sprint 2026
-- China (Round 2)
+- China (Round 2) ✓
 - Miami (Round 6)
 - Canadá (Round 9)
 - Gran Bretaña (Round 13)
@@ -77,49 +80,20 @@ git push origin main
 
 ---
 
-## Carga histórica (temporadas pasadas)
+## Campos calculados por FastF1
 
-Para ingestar una temporada completa el flujo es distinto al de carrera a carrera porque el volumen es demasiado grande para insertar via Python directamente en Supabase.
+### is_accurate
+Booleano que indica si una vuelta es confiable para análisis. FastF1 lo calcula cruzando el estado de la pista con los datos de timing. Excluye automáticamente safety car, pit laps y vueltas anómalas. Usar siempre como filtro en queries de degradación de gomas.
 
-### Paso 1: Exportar datos crudos de FastF1
-```bash
-python3 ingestion/export_to_csv.py
-```
-Genera carpetas en `data/processed/YYYY_nombre_gp/` con `race_results.csv`, `laps.csv` y `qualifying.csv`.
-
-### Paso 2: Transformar para Supabase
-Primero exportar los catálogos desde Supabase:
-```sql
-SELECT driver_id, code, driver_number FROM drivers;
-SELECT session_id, race_id, type FROM sessions;
-SELECT race_id, name, season FROM races;
-```
-Guardar como `data/processed/drivers.csv`, `sessions.csv` y `races.csv`.
-```bash
-python3 ingestion/transform_for_supabase.py
-```
-Genera `all_race_results_YYYY.csv`, `all_laps_YYYY.csv` y `all_qualifying_YYYY.csv`.
-
-### Paso 3: Exportar pit stops
-```bash
-python3 ingestion/export_pit_stops.py
-```
-Genera `all_pit_stops_YYYY.csv`.
-
-### Paso 4: Importar a Supabase via UI
-En este orden: `race_results` → `qualifying_results` → `laps` → `pit_stops`.
-
-Table Editor → Insert → Import data from CSV.
-
-### Paso 5: Limpiar archivos temporales
-```bash
-rm -rf data/processed/
-mkdir -p data/processed data/raw
-```
+### track_status
+Estado de la pista en esa vuelta. Valores principales:
+- `1` → pista verde
+- `4` → safety car
+- `6` → safety car virtual
+- `7` → bandera roja
 
 ---
 
 ## Pendiente
-- [ ] China 2026 (sprint weekend)
 - [ ] `driver_standings` y `constructor_standings`
 - [ ] Dashboard Tableau
