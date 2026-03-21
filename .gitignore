@@ -19,3 +19,5 @@ tableau/*.twbx
 
 # VSCode
 .vscode/
+
+ingestion/temp.py

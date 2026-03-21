@@ -28,4 +28,3 @@ JOIN alpine_drivers ad ON d.driver_id = ad.driver_id
     AND r.round BETWEEN ad.round_start AND ad.round_end
 WHERE s.type = 'Race'
 ORDER BY r.season, r.round, d.code;
-

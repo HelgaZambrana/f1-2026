@@ -1,6 +1,5 @@
-import fastf1
-fastf1.Cache.enable_cache('cache/')
-
-session = fastf1.get_session(2026, 'Australia', 'R')
-session.load(telemetry=False, weather=False, messages=False)
-print(session.laps.columns.tolist())
+import pandas as pd
+df = pd.read_csv('data/processed/tyre_analysis.csv')
+df = df[df['compound'].isin(['SOFT', 'MEDIUM', 'HARD', 'INTERMEDIATE', 'WET'])]
+df.to_csv('data/processed/tyre_analysis.csv', index=False)
+print(df['compound'].unique())

@@ -25,5 +25,6 @@ JOIN alpine_drivers ad ON d.driver_id = ad.driver_id
     AND r.round BETWEEN ad.round_start AND ad.round_end
 WHERE s.type = 'Race'
 AND l.is_accurate = true
+AND l.compound IN ('SOFT', 'MEDIUM', 'HARD', 'INTERMEDIATE', 'WET')
 GROUP BY r.season, r.name, d.code, l.compound, l.tyre_life
 ORDER BY r.season, r.name, d.code, l.compound, l.tyre_life;
