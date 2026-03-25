@@ -30,11 +30,21 @@ Pilotos: Gasly (toda la temporada 2025 y 2026), Doohan (rondas 1-7 2025), Colapi
 
 ### 3. Alpine Tyre Degradation 2025-2026
 **Query:** sql/tyre_analysis.sql
-**Metodología:** Se filtran vueltas con `is_accurate = true` 
-(FastF1 excluye automáticamente safety car, pit laps y vueltas anómalas).
-Esto representa el 83% de las vueltas totales (hasta China 2026).
-**Resultado:** Hasta China 2026, 2172 filas de vueltas limpias para análisis de degradación.
-**Limitación:** Los tiempos varían vuelta a vuelta por factores externos 
-(tráfico, temperatura, viento). La tendencia se visualiza mejor con una 
-línea de regresión en Tableau.
-**Próximos pasos:** Visualizar en Tableau con línea de tendencia por compuesto.
+**Visualización:** Tableau - Sheet Tyre Degradation
+**Metodología:** 
+Se filtran vueltas con `is_accurate = true` y compuestos válidos (SOFT, MEDIUM, HARD, INTERMEDIATE, WET).
+FastF1 excluye automáticamente safety car, pit laps y vueltas anómalas.
+Esto representa el 83% de las vueltas totales (hasta China 2026), equivalente a 2172 filas limpias.
+**Ejemplo: Australia 2025 - Gasly**
+- INTERMEDIATE: tendencia negativa (-1.11s por vuelta), R²=0.66, p<0.0001
+  - Las intermedias mejoran con el uso porque generan temperatura progresivamente
+- HARD: comportamiento irregular con pocas vueltas, difícil de interpretar
+**Insight:** 
+La línea de tendencia lineal con R²=0.66 confirma que el desgaste de goma explica 
+el 65% de la variación en los tiempos de vuelta. La relación es estadísticamente 
+significativa (p<0.0001), no es ruido aleatorio.
+**Limitación:** 
+Los tiempos varían vuelta a vuelta por factores externos (tráfico, temperatura, viento).
+Con pocos datos por stint el promedio es sensible a vueltas irregulares.
+Se necesitan al menos 10 vueltas por stint para tendencias confiables.
+**Próximos pasos:** Comparar degradación de Alpine vs midfield en las mismas carreras.
