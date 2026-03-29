@@ -59,3 +59,26 @@ Con pocos datos por stint el promedio es sensible a vueltas irregulares.
 Se necesitan al menos 10 vueltas por stint para tendencias confiables.
 
 **Próximos pasos:** Comparar degradación de Alpine vs midfield en las mismas carreras.
+
+
+### 4. Gap to Pole Position 2025-2026
+**Query:** sql/gap_to_pole.sql
+
+**Resultado:** Gasly consistentemente más cerca del pole que sus compañeros.
+
+**Insight:** Mejor resultado de Gasly fue Bahrain 2025 a 0.375s del pole. 
+Las Vegas fue el peor fin de semana para Alpine con COL a 5.749s.
+
+**Próximos pasos:** Analizar si hay correlación entre gap al pole y tipo de circuito.
+
+
+### 5. Tyre Usage by Race 2025-2026
+**Query:** sql/tyre_usage.sql
+
+**Resultado:** Alpine usó principalmente HARD y MEDIUM en 2025. SOFT aparece en pocas carreras.
+
+**Insight:** Alpine prefirió estrategias conservadoras con compuestos duros durante 2025.
+
+**Limitación:** Solo stints con datos completos (is_accurate = true).
+
+**Próximos pasos:** Analizar stint length promedio por compuesto cuando haya más datos de 2026.
