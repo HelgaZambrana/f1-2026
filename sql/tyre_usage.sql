@@ -27,14 +27,24 @@ stints AS (
     AND l.compound IN ('SOFT', 'MEDIUM', 'HARD', 'INTERMEDIATE', 'WET')
     AND l.is_accurate = true
     GROUP BY r.season, r.name, r.race_id, l.driver_id, l.compound
+),
+
+tyre_images AS (
+    SELECT 'SOFT'         AS compound, 'https://tyre-assets.pirelli.com/staticfolder/Tyre/resources/img/red-parentesi.png'    AS image_url UNION ALL
+    SELECT 'MEDIUM',                   'https://tyre-assets.pirelli.com/staticfolder/Tyre/resources/img/yellow-parentesi.png' UNION ALL
+    SELECT 'HARD',                     'https://tyre-assets.pirelli.com/staticfolder/Tyre/resources/img/white-parentesi.png'  UNION ALL
+    SELECT 'INTERMEDIATE',             'https://upload.wikimedia.org/wikipedia/commons/a/a3/F1_tire_Pirelli_PZero_Green_2019.png' UNION ALL
+    SELECT 'WET',                      'https://tyre-assets.pirelli.com/staticfolder/Tyre/resources/img/blue-parentesi.png'
 )
 
 SELECT
-    season,
-    race,
-    compound,
+    s.season,
+    s.race,
+    s.compound,
     COUNT(*) AS total_stints,
-    COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (PARTITION BY race_id) AS pct_stints
-FROM stints
-GROUP BY season, race, race_id, compound
-ORDER BY season, race, compound;
+    COUNT(*) * 1.0 / SUM(COUNT(*)) OVER (PARTITION BY s.race_id) AS pct_stints,
+    ti.image_url
+FROM stints s
+JOIN tyre_images ti ON s.compound = ti.compound
+GROUP BY s.season, s.race, s.race_id, s.compound, ti.image_url
+ORDER BY s.season, s.race, s.compound;
