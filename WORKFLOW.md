@@ -94,6 +94,24 @@ Estado de la pista en esa vuelta. Valores principales:
 
 ---
 
-## Pendiente
-- [ ] `driver_standings` y `constructor_standings`
-- [ ] Dashboard Tableau
+## CSVs por dashboard
+
+### Dashboard 1: Race Overview
+| CSV | Query |
+|---|---|
+| `race_performance.csv` | `sql/race_performance.sql` |
+| `alpine_driver_cards.csv` | `sql/alpine_driver_cards.sql` |
+
+### Dashboard 2: Qualifying Overview
+| CSV | Query |
+|---|---|
+| `qualifying_comparison.csv` | `sql/qualifying_comparison.sql` |
+| `qualy_kpi.csv` | `sql/qualy_kpi.sql` |
+| `alpine_teammate_gap.csv` | `sql/alpine_teammate_gap.sql` |
+| `gap_to_pole.csv` | `sql/gap_to_pole.sql` |
+
+### Dashboard 3: Tyre Strategy
+| CSV | Query |
+|---|---|
+| `tyre_analysis.csv` | `sql/tyre_analysis.sql` |
+| `tyre_usage_with_images.csv` | `sql/tyre_usage.sql` (incluye image_url) |
