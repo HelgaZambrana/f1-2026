@@ -46,6 +46,7 @@ CARRERAS_2025 = [
 CARRERAS_2026 = [
     {"year": 2026, "gp": "Australian Grand Prix", "session_key": 11234, "sprint_key": None, "sq_key": None},
     {"year": 2026, "gp": "Chinese Grand Prix", "session_key": 11245, "sprint_key": 11240, "sq_key": 11236},
+    {"year": 2026, 'gp': "Japanese Grand Prix", "session_key": 11253, "sprint_key": None, "sq_key": None}
 ]
 
 def get_session(year, gp, session_type):
@@ -258,4 +259,4 @@ def main(desde=0, hasta=None):
         print(f"Esperando 15 segundos...")
         time.sleep(15)
 
-main(desde=25, hasta=26)
+main(desde=26, hasta=27)
