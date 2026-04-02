@@ -1,6 +1,6 @@
 -- ============================================================
 -- Alpine Gap to Pole Position 2025-2026
--- Difference between Alpine drivers and pole time per race
+-- Difference between Alpine drivers and pole time per race (Q + SQ)
 -- ============================================================
 
 WITH alpine_drivers AS (
@@ -15,7 +15,7 @@ pole_times AS (
         MIN(EXTRACT(EPOCH FROM COALESCE(qr.q3_time, qr.q2_time, qr.q1_time))) AS pole_time
     FROM qualifying_results qr
     JOIN sessions s ON qr.session_id = s.session_id
-    WHERE s.type = 'Q'
+    WHERE s.type IN ('Q', 'SQ')
     GROUP BY s.session_id
 )
 
@@ -23,6 +23,7 @@ SELECT
     r.season,
     r.round,
     r.name AS race,
+    s.type AS session_type,
     d.code AS driver,
     EXTRACT(EPOCH FROM COALESCE(qr.q3_time, qr.q2_time, qr.q1_time)) AS driver_time,
     pt.pole_time,
@@ -35,5 +36,5 @@ JOIN alpine_drivers ad ON d.driver_id = ad.driver_id
     AND ad.season = r.season
     AND r.round BETWEEN ad.round_start AND ad.round_end
 JOIN pole_times pt ON pt.session_id = s.session_id
-WHERE s.type = 'Q'
-ORDER BY r.season, r.round, d.code;
+WHERE s.type IN ('Q', 'SQ')
+ORDER BY r.season, r.round, s.type, d.code;

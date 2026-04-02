@@ -51,7 +51,10 @@ CARRERAS_2026 = [
 
 def get_session(year, gp, session_type):
     session = fastf1.get_session(year, gp, session_type)
-    session.load(telemetry=False, weather=False, messages=False)
+    if session_type == 'SQ':
+        session.load(telemetry=False, weather=False, messages=True)
+    else:
+        session.load(telemetry=False, weather=False, messages=False)
     return session
 
 def get_driver_id(abbreviation):
@@ -259,4 +262,4 @@ def main(desde=0, hasta=None):
         print(f"Esperando 15 segundos...")
         time.sleep(15)
 
-main(desde=26, hasta=27)
+main(desde=25, hasta=26)

@@ -12,6 +12,7 @@ WITH alpine_drivers AS (
 SELECT
     r.season,
     r.name AS race,
+    r.conditions,
     d.code AS driver,
     l.compound,
     l.tyre_life,
@@ -26,5 +27,5 @@ JOIN alpine_drivers ad ON d.driver_id = ad.driver_id
 WHERE s.type = 'Race'
 AND l.is_accurate = true
 AND l.compound IN ('SOFT', 'MEDIUM', 'HARD', 'INTERMEDIATE', 'WET')
-GROUP BY r.season, r.name, d.code, l.compound, l.tyre_life
+GROUP BY r.season, r.name, r.conditions, d.code, l.compound, l.tyre_life
 ORDER BY r.season, r.name, d.code, l.compound, l.tyre_life;

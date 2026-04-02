@@ -40,11 +40,13 @@ tyre_images AS (
 SELECT
     s.season,
     s.race,
+    r.conditions,
     s.compound,
     COUNT(*) AS total_stints,
     COUNT(*) * 1.0 / SUM(COUNT(*)) OVER (PARTITION BY s.race_id) AS pct_stints,
     ti.image_url
 FROM stints s
+JOIN races r ON s.race = r.name AND s.season = r.season
 JOIN tyre_images ti ON s.compound = ti.compound
-GROUP BY s.season, s.race, s.race_id, s.compound, ti.image_url
+GROUP BY s.season, s.race, s.race_id, r.conditions, s.compound, ti.image_url
 ORDER BY s.season, s.race, s.compound;

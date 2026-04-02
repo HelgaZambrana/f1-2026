@@ -1,5 +1,5 @@
 -- ============================================================
--- Alpine Qualifying KPI by Driver and Season
+-- Alpine Qualifying KPI by Driver and Season (Q + SQ)
 -- Best and average qualifying position
 -- ============================================================
 
@@ -15,6 +15,7 @@ SELECT
     d.surname,
     d.photo_url,
     ds.season,
+    s.type AS session_type,
     MIN(qr.position) AS best_qualifying,
     ROUND(AVG(qr.position), 1) AS avg_qualifying
 FROM qualifying_results qr
@@ -24,6 +25,6 @@ JOIN races r ON s.race_id = r.race_id
 JOIN alpine_drivers ds ON d.driver_id = ds.driver_id
     AND ds.season = r.season
     AND r.round BETWEEN ds.round_start AND ds.round_end
-WHERE s.type = 'Q'
-GROUP BY d.code, d.forename, d.surname, d.photo_url, ds.season
-ORDER BY ds.season, d.code;
+WHERE s.type IN ('Q', 'SQ')
+GROUP BY d.code, d.forename, d.surname, d.photo_url, ds.season, s.type
+ORDER BY ds.season, s.type, d.code;

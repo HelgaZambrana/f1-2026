@@ -1,6 +1,6 @@
 -- ============================================================
 -- Alpine Race Performance 2025-2026
--- Position delta: grid vs finish
+-- Position delta: grid vs finish (Race + Sprint)
 -- ============================================================
 
 WITH alpine_drivers AS (
@@ -13,6 +13,7 @@ SELECT
     r.season,
     r.round,
     r.name AS race,
+    s.type AS session_type,
     d.code AS driver,
     rr.grid_position,
     rr.final_position,
@@ -26,5 +27,5 @@ JOIN races r ON s.race_id = r.race_id
 JOIN alpine_drivers ad ON d.driver_id = ad.driver_id
     AND ad.season = r.season
     AND r.round BETWEEN ad.round_start AND ad.round_end
-WHERE s.type = 'Race'
-ORDER BY r.season, r.round, d.code;
+WHERE s.type IN ('Race', 'Sprint')
+ORDER BY r.season, r.round, s.type, d.code;
