@@ -51,9 +51,12 @@ f1-2026/
 │   ├── raw/          # raw data from APIs (not tracked by git)
 │   └── processed/    # clean CSVs ready for Tableau (not tracked by git)
 ├── ingestion/
-│   ├── fetch_openf1.py      # loads catalogues (run once per season)
-│   ├── fetch_fastf1.py      # loads race results (run after each GP)
-│   └── fetch_conditions.py  # loads weather conditions per race
+│   ├── fetch_openf1.py          # loads catalogues (run once per season)
+│   ├── fetch_fastf1.py          # loads race results (run after each GP)
+│   ├── fetch_conditions.py      # loads weather conditions per race
+│   ├── export_to_csv.py         # historical bulk export from FastF1
+│   ├── export_pit_stops.py      # historical pit stops from OpenF1
+│   └── transform_for_supabase.py # transforms historical CSVs for Supabase import
 ├── sql/
 │   ├── schema.sql                    # database schema
 │   ├── race_performance.sql          # race + sprint results
