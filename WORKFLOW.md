@@ -114,4 +114,6 @@ Estado de la pista en esa vuelta. Valores principales:
 | CSV | Query |
 |---|---|
 | `tyre_analysis.csv` | `sql/tyre_analysis.sql` |
-| `tyre_usage_with_images.csv` | `sql/tyre_usage.sql` (incluye image_url) |
+| `tyre_usage_with_images.csv` | `sql/tyre_usage.sql` |
+| `midfield_tyre_strategy.csv` | `sql/midfield_tyre_strategy.sql` |
+| `pit_stop_position_change.csv` | `sql/pit_stop_position_change.sql` |

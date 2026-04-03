@@ -82,3 +82,22 @@ Las Vegas fue el peor fin de semana para Alpine con COL a 5.749s.
 **Limitación:** Solo stints con datos completos (is_accurate = true).
 
 **Próximos pasos:** Analizar stint length promedio por compuesto cuando haya más datos de 2026.
+
+### 6. Tyre Strategy vs Midfield 2025-2026
+**Query:** sql/midfield_tyre_strategy.sql
+
+**Resultado:** Alpine tiene stints más cortos que Kick Sauber/Audi pero comparables con Haas y Williams.
+
+**Insight:** La estrategia de gomas de Alpine no es un diferenciador claro respecto al midfield. El rendimiento en carrera refleja más el ritmo del auto que decisiones estratégicas.
+
+**Limitación:** Stints calculados con is_accurate=true, lo que puede subestimar la duración real en carreras con safety car o lluvia.
+
+
+### 7. Pit Stop Position Change 2025-2026
+**Query:** sql/pit_stop_position_change.sql
+
+**Resultado:** Alpine pierde posiciones en la mayoría de las paradas. El promedio es negativo en casi todas las carreras.
+
+**Insight:** Perder posiciones al parar es normal en F1 cuando largás desde el fondo. El dato más relevante es cuántas posiciones se recuperan después de la parada, no cuántas se pierden en el momento.
+
+**Limitación:** Las carreras con conditions=mixed pueden incluir paradas reactivas al clima que no reflejan decisiones estratégicas.
