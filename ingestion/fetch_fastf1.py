@@ -3,6 +3,7 @@ import pandas as pd
 import requests
 import os
 import time
+from datetime import date, timedelta
 from supabase import create_client
 from dotenv import load_dotenv
 
@@ -17,36 +18,55 @@ DRIVER_NUMBER_MAP = {
 }
 
 CARRERAS_2025 = [
-    {"year": 2025, "gp": "Australian Grand Prix", "session_key": 9693, "sprint_key": None, "sq_key": None},
-    {"year": 2025, "gp": "Chinese Grand Prix", "session_key": 9998, "sprint_key": 9993, "sq_key": 9989},
-    {"year": 2025, "gp": "Japanese Grand Prix", "session_key": 10006, "sprint_key": None, "sq_key": None},
-    {"year": 2025, "gp": "Bahrain Grand Prix", "session_key": 10014, "sprint_key": None, "sq_key": None},
-    {"year": 2025, "gp": "Saudi Arabian Grand Prix", "session_key": 10022, "sprint_key": None, "sq_key": None},
-    {"year": 2025, "gp": "Miami Grand Prix", "session_key": 10033, "sprint_key": 10028, "sq_key": 10024},
-    {"year": 2025, "gp": "Emilia Romagna Grand Prix", "session_key": 9987, "sprint_key": None, "sq_key": None},
-    {"year": 2025, "gp": "Monaco Grand Prix", "session_key": 9979, "sprint_key": None, "sq_key": None},
-    {"year": 2025, "gp": "Spanish Grand Prix", "session_key": 9971, "sprint_key": None, "sq_key": None},
-    {"year": 2025, "gp": "Canadian Grand Prix", "session_key": 9963, "sprint_key": None, "sq_key": None},
-    {"year": 2025, "gp": "Austrian Grand Prix", "session_key": 9955, "sprint_key": None, "sq_key": None},
-    {"year": 2025, "gp": "British Grand Prix", "session_key": 9947, "sprint_key": None, "sq_key": None},
-    {"year": 2025, "gp": "Belgian Grand Prix", "session_key": 9939, "sprint_key": 9934, "sq_key": 9930},
-    {"year": 2025, "gp": "Hungarian Grand Prix", "session_key": 9928, "sprint_key": None, "sq_key": None},
-    {"year": 2025, "gp": "Dutch Grand Prix", "session_key": 9920, "sprint_key": None, "sq_key": None},
-    {"year": 2025, "gp": "Italian Grand Prix", "session_key": 9912, "sprint_key": None, "sq_key": None},
-    {"year": 2025, "gp": "Azerbaijan Grand Prix", "session_key": 9904, "sprint_key": None, "sq_key": None},
-    {"year": 2025, "gp": "Singapore Grand Prix", "session_key": 9896, "sprint_key": None, "sq_key": None},
-    {"year": 2025, "gp": "United States Grand Prix", "session_key": 9888, "sprint_key": 9883, "sq_key": 9879},
-    {"year": 2025, "gp": "Mexico City Grand Prix", "session_key": 9877, "sprint_key": None, "sq_key": None},
-    {"year": 2025, "gp": "São Paulo Grand Prix", "session_key": 9869, "sprint_key": 9864, "sq_key": 9860},
-    {"year": 2025, "gp": "Las Vegas Grand Prix", "session_key": 9858, "sprint_key": None, "sq_key": None},
-    {"year": 2025, "gp": "Qatar Grand Prix", "session_key": 9850, "sprint_key": 9845, "sq_key": 9841},
-    {"year": 2025, "gp": "Abu Dhabi Grand Prix", "session_key": 9839, "sprint_key": None, "sq_key": None},
+    {"year": 2025, "gp": "Australian Grand Prix", "session_key": 9693, "sprint_key": None, "sq_key": None, "race_date": "2025-03-16"},
+    {"year": 2025, "gp": "Chinese Grand Prix", "session_key": 9998, "sprint_key": 9993, "sq_key": 9989, "race_date": "2025-03-23"},
+    {"year": 2025, "gp": "Japanese Grand Prix", "session_key": 10006, "sprint_key": None, "sq_key": None, "race_date": "2025-03-30"},
+    {"year": 2025, "gp": "Bahrain Grand Prix", "session_key": 10014, "sprint_key": None, "sq_key": None, "race_date": "2025-04-13"},
+    {"year": 2025, "gp": "Saudi Arabian Grand Prix", "session_key": 10022, "sprint_key": None, "sq_key": None, "race_date": "2025-04-20"},
+    {"year": 2025, "gp": "Miami Grand Prix", "session_key": 10033, "sprint_key": 10028, "sq_key": 10024, "race_date": "2025-05-04"},
+    {"year": 2025, "gp": "Emilia Romagna Grand Prix", "session_key": 9987, "sprint_key": None, "sq_key": None, "race_date": "2025-05-18"},
+    {"year": 2025, "gp": "Monaco Grand Prix", "session_key": 9979, "sprint_key": None, "sq_key": None, "race_date": "2025-05-25"},
+    {"year": 2025, "gp": "Spanish Grand Prix", "session_key": 9971, "sprint_key": None, "sq_key": None, "race_date": "2025-06-01"},
+    {"year": 2025, "gp": "Canadian Grand Prix", "session_key": 9963, "sprint_key": None, "sq_key": None, "race_date": "2025-06-15"},
+    {"year": 2025, "gp": "Austrian Grand Prix", "session_key": 9955, "sprint_key": None, "sq_key": None, "race_date": "2025-06-29"},
+    {"year": 2025, "gp": "British Grand Prix", "session_key": 9947, "sprint_key": None, "sq_key": None, "race_date": "2025-07-06"},
+    {"year": 2025, "gp": "Belgian Grand Prix", "session_key": 9939, "sprint_key": 9934, "sq_key": 9930, "race_date": "2025-07-27"},
+    {"year": 2025, "gp": "Hungarian Grand Prix", "session_key": 9928, "sprint_key": None, "sq_key": None, "race_date": "2025-08-03"},
+    {"year": 2025, "gp": "Dutch Grand Prix", "session_key": 9920, "sprint_key": None, "sq_key": None, "race_date": "2025-08-31"},
+    {"year": 2025, "gp": "Italian Grand Prix", "session_key": 9912, "sprint_key": None, "sq_key": None, "race_date": "2025-09-07"},
+    {"year": 2025, "gp": "Azerbaijan Grand Prix", "session_key": 9904, "sprint_key": None, "sq_key": None, "race_date": "2025-09-21"},
+    {"year": 2025, "gp": "Singapore Grand Prix", "session_key": 9896, "sprint_key": None, "sq_key": None, "race_date": "2025-10-05"},
+    {"year": 2025, "gp": "United States Grand Prix", "session_key": 9888, "sprint_key": 9883, "sq_key": 9879, "race_date": "2025-10-19"},
+    {"year": 2025, "gp": "Mexico City Grand Prix", "session_key": 9877, "sprint_key": None, "sq_key": None, "race_date": "2025-10-26"},
+    {"year": 2025, "gp": "São Paulo Grand Prix", "session_key": 9869, "sprint_key": 9864, "sq_key": 9860, "race_date": "2025-11-09"},
+    {"year": 2025, "gp": "Las Vegas Grand Prix", "session_key": 9858, "sprint_key": None, "sq_key": None, "race_date": "2025-11-22"},
+    {"year": 2025, "gp": "Qatar Grand Prix", "session_key": 9850, "sprint_key": 9845, "sq_key": 9841, "race_date": "2025-11-30"},
+    {"year": 2025, "gp": "Abu Dhabi Grand Prix", "session_key": 9839, "sprint_key": None, "sq_key": None, "race_date": "2025-12-07"},
 ]
 
 CARRERAS_2026 = [
-    {"year": 2026, "gp": "Australian Grand Prix", "session_key": 11234, "sprint_key": None, "sq_key": None},
-    {"year": 2026, "gp": "Chinese Grand Prix", "session_key": 11245, "sprint_key": 11240, "sq_key": 11236},
-    {"year": 2026, 'gp': "Japanese Grand Prix", "session_key": 11253, "sprint_key": None, "sq_key": None}
+    {"year": 2026, "gp": "Australian Grand Prix",         "session_key": 11234, "sprint_key": None,  "sq_key": None,  "race_date": "2026-03-08"},
+    {"year": 2026, "gp": "Chinese Grand Prix",            "session_key": 11245, "sprint_key": 11240, "sq_key": 11236, "race_date": "2026-03-15"},
+    {"year": 2026, "gp": "Japanese Grand Prix",           "session_key": 11253, "sprint_key": None,  "sq_key": None,  "race_date": "2026-03-29"},
+    {"year": 2026, "gp": "Miami Grand Prix",              "session_key": None,  "sprint_key": None,  "sq_key": None,  "race_date": "2026-05-03"},
+    {"year": 2026, "gp": "Canadian Grand Prix",           "session_key": None,  "sprint_key": None,  "sq_key": None,  "race_date": "2026-05-24"},
+    {"year": 2026, "gp": "Monaco Grand Prix",             "session_key": None,  "sprint_key": None,  "sq_key": None,  "race_date": "2026-06-07"},
+    {"year": 2026, "gp": "Barcelona-Catalunya Grand Prix","session_key": None,  "sprint_key": None,  "sq_key": None,  "race_date": "2026-06-14"},
+    {"year": 2026, "gp": "Austrian Grand Prix",           "session_key": None,  "sprint_key": None,  "sq_key": None,  "race_date": "2026-06-28"},
+    {"year": 2026, "gp": "British Grand Prix",            "session_key": None,  "sprint_key": None,  "sq_key": None,  "race_date": "2026-07-05"},
+    {"year": 2026, "gp": "Belgian Grand Prix",            "session_key": None,  "sprint_key": None,  "sq_key": None,  "race_date": "2026-07-19"},
+    {"year": 2026, "gp": "Hungarian Grand Prix",          "session_key": None,  "sprint_key": None,  "sq_key": None,  "race_date": "2026-07-26"},
+    {"year": 2026, "gp": "Dutch Grand Prix",              "session_key": None,  "sprint_key": None,  "sq_key": None,  "race_date": "2026-08-23"},
+    {"year": 2026, "gp": "Italian Grand Prix",            "session_key": None,  "sprint_key": None,  "sq_key": None,  "race_date": "2026-09-06"},
+    {"year": 2026, "gp": "Spanish Grand Prix",            "session_key": None,  "sprint_key": None,  "sq_key": None,  "race_date": "2026-09-13"},
+    {"year": 2026, "gp": "Azerbaijan Grand Prix",         "session_key": None,  "sprint_key": None,  "sq_key": None,  "race_date": "2026-09-26"},
+    {"year": 2026, "gp": "Singapore Grand Prix",          "session_key": None,  "sprint_key": None,  "sq_key": None,  "race_date": "2026-10-11"},
+    {"year": 2026, "gp": "United States Grand Prix",      "session_key": None,  "sprint_key": None,  "sq_key": None,  "race_date": "2026-10-25"},
+    {"year": 2026, "gp": "Mexico City Grand Prix",        "session_key": None,  "sprint_key": None,  "sq_key": None,  "race_date": "2026-11-01"},
+    {"year": 2026, "gp": "São Paulo Grand Prix",          "session_key": None,  "sprint_key": None,  "sq_key": None,  "race_date": "2026-11-08"},
+    {"year": 2026, "gp": "Las Vegas Grand Prix",          "session_key": None,  "sprint_key": None,  "sq_key": None,  "race_date": "2026-11-21"},
+    {"year": 2026, "gp": "Qatar Grand Prix",              "session_key": None,  "sprint_key": None,  "sq_key": None,  "race_date": "2026-11-29"},
+    {"year": 2026, "gp": "Abu Dhabi Grand Prix",          "session_key": None,  "sprint_key": None,  "sq_key": None,  "race_date": "2026-12-06"},
 ]
 
 def get_session(year, gp, session_type):
@@ -110,6 +130,7 @@ def insert_race_results(session, race_name, year, session_type='Race'):
     supabase.table("race_results").upsert(batch, on_conflict="session_id,driver_id").execute()
     print(f"Resultados de {race_name} {year} ({session_type}) insertados")
 
+# insertar de a 100 para no saturar Supabase
 def insert_laps(session, race_name, year, session_type='Race'):
     session_id = get_or_create_session(race_name, session_type, year)
     if not session_id:
@@ -150,7 +171,7 @@ def fetch_and_insert_pit_stops(race_name, openf1_session_key, year, session_type
     if response.status_code != 200:
         print(f"Sin pit stops para esta sesión")
         return
-    
+
     pits = [p for p in response.json() if p["pit_duration"]]
 
     session_id = get_or_create_session(race_name, session_type, year)
@@ -212,6 +233,17 @@ def insert_qualifying_results(session, race_name, year, session_type='Q'):
     print(f"Qualifying de {race_name} {year} ({session_type}) insertado")
 
 
+def get_next_race_index():
+    carreras = CARRERAS_2025 + CARRERAS_2026
+    hoy = date.today()
+    for i, carrera in enumerate(carreras):
+        if 'race_date' in carrera:
+            race_date = date.fromisoformat(carrera['race_date'])
+            if race_date <= hoy <= race_date + timedelta(days=1):
+                return i
+    return None
+
+
 def main(desde=0, hasta=None):
     global supabase, driver_cache
     carreras = CARRERAS_2025 + CARRERAS_2026
@@ -222,7 +254,6 @@ def main(desde=0, hasta=None):
         os.getenv("SUPABASE_KEY")
     )
 
-    # Cache local de driver IDs - una sola query al inicio
     driver_cache = {}
     result = supabase.table("drivers").select("driver_id, code").execute()
     for d in result.data:
@@ -232,13 +263,15 @@ def main(desde=0, hasta=None):
     for carrera in bloque:
         print(f"\nProcesando {carrera['gp']} {carrera['year']}")
 
-        # Reconectar Supabase en cada carrera
         supabase = create_client(
             os.getenv("SUPABASE_URL"),
             os.getenv("SUPABASE_KEY")
         )
 
-        # Carrera principal
+        if not carrera.get('session_key'):
+            print(f"session_key no disponible para {carrera['gp']}, saltando.")
+            continue
+
         session = get_session(carrera['year'], carrera['gp'], 'R')
         insert_race_results(session, carrera['gp'], carrera['year'])
         insert_laps(session, carrera['gp'], carrera['year'])
@@ -247,7 +280,6 @@ def main(desde=0, hasta=None):
         session_q = get_session(carrera['year'], carrera['gp'], 'Q')
         insert_qualifying_results(session_q, carrera['gp'], carrera['year'])
 
-        # Sprint weekend
         if carrera['sprint_key']:
             print(f"Procesando sprint de {carrera['gp']}")
 
@@ -262,4 +294,11 @@ def main(desde=0, hasta=None):
         print(f"Esperando 15 segundos...")
         time.sleep(15)
 
-main(desde=25, hasta=26)
+
+if __name__ == "__main__":
+    idx = get_next_race_index()
+    if idx is not None:
+        print(f"Carrera detectada en índice {idx}: {(CARRERAS_2025 + CARRERAS_2026)[idx]['gp']}")
+        main(desde=idx, hasta=idx+1)
+    else:
+        print("No hay carrera hoy.")
