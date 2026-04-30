@@ -3,6 +3,7 @@ name: Fetch F1 Race Data
 on:
   schedule:
     - cron: '0 21 * * 0' # domingos a las 18hs Argentina (UTC-3)
+    - cron: '0 12 * * 3'  # miércoles al mediodía para mantener Supabase activo
   workflow_dispatch: # permite correrlo manualmente desde GitHub
 
 jobs:
@@ -23,6 +24,12 @@ jobs:
 
       - name: Create cache directory
         run: mkdir -p cache/
+
+      - name: Keep Supabase alive
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: python -c "from supabase import create_client; import os; c = create_client(os.getenv('SUPABASE_URL'), os.getenv('SUPABASE_KEY')); c.table('races').select('race_id').limit(1).execute(); print('Supabase alive')"
 
       - name: Run ingestion script
         env:
