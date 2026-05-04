@@ -26,10 +26,13 @@ jobs:
         run: mkdir -p cache/
 
       - name: Keep Supabase alive
+        continue-on-error: true
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-        run: python -c "from supabase import create_client; import os; c = create_client(os.getenv('SUPABASE_URL'), os.getenv('SUPABASE_KEY')); c.table('races').select('race_id').limit(1).execute(); print('Supabase alive')"
+        run: |
+          python -c "from supabase import create_client; import os; c = create_client(os.getenv('SUPABASE_URL'), os.getenv('SUPABASE_KEY')); c.table('races').select('race_id').limit(1).execute(); print('Supabase alive')"
+          sleep 30
 
       - name: Run ingestion script
         env:

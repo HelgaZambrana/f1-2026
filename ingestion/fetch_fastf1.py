@@ -48,7 +48,7 @@ CARRERAS_2026 = [
     {"year": 2026, "gp": "Australian Grand Prix",         "session_key": 11234, "sprint_key": None,  "sq_key": None,  "race_date": "2026-03-08"},
     {"year": 2026, "gp": "Chinese Grand Prix",            "session_key": 11245, "sprint_key": 11240, "sq_key": 11236, "race_date": "2026-03-15"},
     {"year": 2026, "gp": "Japanese Grand Prix",           "session_key": 11253, "sprint_key": None,  "sq_key": None,  "race_date": "2026-03-29"},
-    {"year": 2026, "gp": "Miami Grand Prix",              "session_key": None,  "sprint_key": None,  "sq_key": None,  "race_date": "2026-05-03"},
+    {"year": 2026, "gp": "Miami Grand Prix",              "session_key": 11280, "sprint_key": 11275, "sq_key": 11271, "race_date": "2026-05-03"},
     {"year": 2026, "gp": "Canadian Grand Prix",           "session_key": None,  "sprint_key": None,  "sq_key": None,  "race_date": "2026-05-24"},
     {"year": 2026, "gp": "Monaco Grand Prix",             "session_key": None,  "sprint_key": None,  "sq_key": None,  "race_date": "2026-06-07"},
     {"year": 2026, "gp": "Barcelona-Catalunya Grand Prix","session_key": None,  "sprint_key": None,  "sq_key": None,  "race_date": "2026-06-14"},
